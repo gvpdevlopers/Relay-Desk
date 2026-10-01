@@ -1,0 +1,98 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-bg: var(--app-bg);
+  --color-surface: var(--app-surface);
+  --color-surface-2: var(--app-surface-2);
+  --color-fg: var(--app-fg);
+  --color-muted: var(--app-muted);
+  --color-subtle: var(--app-subtle);
+  --color-border: var(--app-border);
+  --color-accent: var(--app-accent);
+  --color-accent-fg: var(--app-accent-fg);
+  --color-ok: var(--app-ok);
+  --color-warn: var(--app-warn);
+  --color-danger: var(--app-danger);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+}
+
+:root,
+html.dark {
+  color-scheme: dark;
+  --app-bg: #0c0d10;
+  --app-surface: #15161b;
+  --app-surface-2: #1c1e25;
+  --app-fg: #ecece8;
+  --app-muted: #8b8d96;
+  --app-subtle: #6a6c75;
+  --app-border: #2a2c34;
+  --app-accent: #c5cdd8;
+  --app-accent-fg: #0c0d10;
+  --app-ok: #7d9b7f;
+  --app-warn: #c4a574;
+  --app-danger: #c47a72;
+}
+
+html.light {
+  color-scheme: light;
+  --app-bg: #f3f3f0;
+  --app-surface: #ffffff;
+  --app-surface-2: #ecece8;
+  --app-fg: #14151a;
+  --app-muted: #5c5e66;
+  --app-subtle: #8b8d96;
+  --app-border: #d4d5da;
+  --app-accent: #2a3140;
+  --app-accent-fg: #f3f3f0;
+  --app-ok: #3d6b42;
+  --app-warn: #9a6b2f;
+  --app-danger: #a1443c;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--app-bg);
+    color: var(--app-fg);
+    font-family: var(--font-sans);
+    transition:
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

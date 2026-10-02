@@ -95,7 +95,7 @@ export function UserManagement() {
   return (
     <main className="min-h-dvh bg-bg text-fg">
       <header className="sticky top-0 z-20 border-b border-border bg-bg/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-3 px-4 py-3">
           <Link to="/" className="mr-auto text-lg font-medium tracking-tight">
             Relay Desk
           </Link>
@@ -104,14 +104,14 @@ export function UserManagement() {
           </Button>
           <Button variant="outline" asChild>
             <Link to="/user" aria-current="page">
-              User
+              Users
             </Link>
           </Button>
           <ThemeToggle />
           <UserButton />
         </div>
       </header>
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-8">
+      <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-widest text-subtle">Administration</p>

@@ -152,7 +152,7 @@ function Home({ user }: { user: AppUser }) {
           </div>
           {user.role === "admin" && (
             <Button variant="outline" asChild>
-              <Link to="/user">User</Link>
+              <Link to="/user">Users</Link>
             </Button>
           )}
           <ThemeToggle />

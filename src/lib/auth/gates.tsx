@@ -1,5 +1,6 @@
 import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { Navigate } from "@tanstack/react-router";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { GROK_PROVIDERS, authEnabled, signIn, signOut } from "./client";
 import { hasGateSessionMarker } from "./gate-session-marker";
 import { resolveSignInGateState } from "./sign-in-gate";
@@ -49,13 +50,7 @@ export function RedirectToSignIn({ to = SIGN_IN_PATH }: { to?: string }) {
   return <Navigate to={to} />;
 }
 
-export function SignInGate({
-  children,
-  fallback,
-}: {
-  children: ReactNode;
-  fallback?: ReactNode;
-}) {
+export function SignInGate({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
   const { user, isPending } = useCurrentUserState();
   const state = resolveSignInGateState({ isPending, hasUser: user !== null });
   if (state === "pending") return null;
@@ -100,33 +95,51 @@ export function UserButton() {
   if (!user) return null;
   const label = user.displayName ?? user.primaryEmail ?? "Account";
   return (
-    <div className="flex items-center gap-2">
-      {user.profileImageUrl ? (
-        <img
-          src={user.profileImageUrl}
-          alt=""
-          className="h-8 w-8 rounded-full object-cover"
-        />
-      ) : (
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-black/10 text-sm font-medium dark:bg-white/20">
-          {label.charAt(0).toUpperCase()}
-        </span>
-      )}
-      <span className="text-sm font-medium">{label}</span>
-      {authEnabled && !gateSession && (
-        <button
-          type="button"
-          disabled={signingOut}
-          onClick={() => {
-            setSigningOut(true);
-            // Success navigates away; on failure re-enable so it can be retried.
-            void signOut().catch(() => setSigningOut(false));
-          }}
-          className="cursor-pointer text-sm underline-offset-4 opacity-70 hover:underline disabled:cursor-wait disabled:no-underline"
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger
+        className="flex h-11 items-center gap-2 rounded-md px-2 text-fg outline-none hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-accent/50"
+        aria-label={`Account: ${label}`}
+      >
+        {user.profileImageUrl ? (
+          <img src={user.profileImageUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+        ) : (
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-surface-2 text-sm font-medium">
+            {label.charAt(0).toUpperCase()}
+          </span>
+        )}
+        <span className="text-sm font-medium">{label}</span>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          align="end"
+          sideOffset={8}
+          className="z-50 w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-surface p-2 text-fg shadow-xl"
         >
-          {signingOut ? "Signing out…" : "Sign out"}
-        </button>
-      )}
-    </div>
+          <DropdownMenu.Label className="px-2 py-2">
+            <p className="break-words text-sm font-medium">{user.displayName ?? label}</p>
+            {user.primaryEmail && (
+              <p className="mt-1 break-all text-xs font-normal text-muted">{user.primaryEmail}</p>
+            )}
+          </DropdownMenu.Label>
+          {authEnabled && !gateSession && (
+            <>
+              <DropdownMenu.Separator className="my-1 h-px bg-border" />
+              <DropdownMenu.Item
+                disabled={signingOut}
+                onSelect={(event) => {
+                  event.preventDefault();
+                  setSigningOut(true);
+                  // Success navigates away; on failure re-enable so it can be retried.
+                  void signOut().catch(() => setSigningOut(false));
+                }}
+                className="cursor-pointer rounded-md px-2 py-3 text-sm outline-none data-[highlighted]:bg-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+              >
+                {signingOut ? "Signing out…" : "Sign out"}
+              </DropdownMenu.Item>
+            </>
+          )}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 }

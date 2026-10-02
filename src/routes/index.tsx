@@ -1,6 +1,6 @@
 import { UserButton } from "@/lib/auth/gates";
-import { useCurrentUserState } from "@/lib/auth/use-current-user";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { useCurrentUserState, type AppUser } from "@/lib/auth/use-current-user";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { Download, Plus, RotateCcw, Search, Undo2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -62,9 +62,9 @@ function ProtectedHome() {
     return <Navigate to="/login" replace />;
   }
 
-  return <Home />;
+  return <Home user={user} />;
 }
-function Home() {
+function Home({ user }: { user: AppUser }) {
   const requests = useDesk((s) => s.requests);
   const role = useDesk((s) => s.role);
   const setRole = useDesk((s) => s.setRole);
@@ -150,6 +150,11 @@ function Home() {
             </p>
             <h1 className="text-lg font-medium tracking-tight">Relay Desk</h1>
           </div>
+          {user.role === "admin" && (
+            <Button variant="outline" asChild>
+              <Link to="/user">User</Link>
+            </Button>
+          )}
           <ThemeToggle />
           <UserButton />
           {/* <div className="flex rounded-full border border-border p-0.5">

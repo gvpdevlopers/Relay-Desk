@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as UserRouteImport } from './routes/user'
 import { Route as AdminTeamRouteImport } from './routes/admin/team'
 import { Route as ApiTestSmmqualityOrdersRouteImport } from './routes/api/test-smmquality-orders'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiSmmqualityOrderRouteImport } from './routes/api/smmquality/order'
 import { Route as ApiSmmqualityServicesRouteImport } from './routes/api/smmquality/services'
+import { Route as ApiWebhooksSmmqualityRouteImport } from './routes/api/webhooks/smmquality'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -25,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UserRoute = UserRouteImport.update({
+  id: '/user',
+  path: '/user',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminTeamRoute = AdminTeamRouteImport.update({
@@ -52,73 +59,92 @@ const ApiSmmqualityServicesRoute = ApiSmmqualityServicesRouteImport.update({
   path: '/api/smmquality/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWebhooksSmmqualityRoute = ApiWebhooksSmmqualityRouteImport.update({
+  id: '/api/webhooks/smmquality',
+  path: '/api/webhooks/smmquality',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/user': typeof UserRoute
   '/admin/team': typeof AdminTeamRoute
   '/api/test-smmquality-orders': typeof ApiTestSmmqualityOrdersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/smmquality/order': typeof ApiSmmqualityOrderRoute
   '/api/smmquality/services': typeof ApiSmmqualityServicesRoute
+  '/api/webhooks/smmquality': typeof ApiWebhooksSmmqualityRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/user': typeof UserRoute
   '/admin/team': typeof AdminTeamRoute
   '/api/test-smmquality-orders': typeof ApiTestSmmqualityOrdersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/smmquality/order': typeof ApiSmmqualityOrderRoute
   '/api/smmquality/services': typeof ApiSmmqualityServicesRoute
+  '/api/webhooks/smmquality': typeof ApiWebhooksSmmqualityRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/user': typeof UserRoute
   '/admin/team': typeof AdminTeamRoute
   '/api/test-smmquality-orders': typeof ApiTestSmmqualityOrdersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/smmquality/order': typeof ApiSmmqualityOrderRoute
   '/api/smmquality/services': typeof ApiSmmqualityServicesRoute
+  '/api/webhooks/smmquality': typeof ApiWebhooksSmmqualityRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/login'
+    | '/user'
     | '/admin/team'
     | '/api/test-smmquality-orders'
     | '/api/auth/$'
     | '/api/smmquality/order'
     | '/api/smmquality/services'
+    | '/api/webhooks/smmquality'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/user'
     | '/admin/team'
     | '/api/test-smmquality-orders'
     | '/api/auth/$'
     | '/api/smmquality/order'
     | '/api/smmquality/services'
+    | '/api/webhooks/smmquality'
   id:
     | '__root__'
     | '/'
     | '/login'
+    | '/user'
     | '/admin/team'
     | '/api/test-smmquality-orders'
     | '/api/auth/$'
     | '/api/smmquality/order'
     | '/api/smmquality/services'
+    | '/api/webhooks/smmquality'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  UserRoute: typeof UserRoute
   AdminTeamRoute: typeof AdminTeamRoute
   ApiTestSmmqualityOrdersRoute: typeof ApiTestSmmqualityOrdersRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiSmmqualityOrderRoute: typeof ApiSmmqualityOrderRoute
   ApiSmmqualityServicesRoute: typeof ApiSmmqualityServicesRoute
+  ApiWebhooksSmmqualityRoute: typeof ApiWebhooksSmmqualityRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -135,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/user': {
+      id: '/user'
+      path: '/user'
+      fullPath: '/user'
+      preLoaderRoute: typeof UserRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/team': {
@@ -172,17 +205,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSmmqualityServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/webhooks/smmquality': {
+      id: '/api/webhooks/smmquality'
+      path: '/api/webhooks/smmquality'
+      fullPath: '/api/webhooks/smmquality'
+      preLoaderRoute: typeof ApiWebhooksSmmqualityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  UserRoute: UserRoute,
   AdminTeamRoute: AdminTeamRoute,
   ApiTestSmmqualityOrdersRoute: ApiTestSmmqualityOrdersRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiSmmqualityOrderRoute: ApiSmmqualityOrderRoute,
   ApiSmmqualityServicesRoute: ApiSmmqualityServicesRoute,
+  ApiWebhooksSmmqualityRoute: ApiWebhooksSmmqualityRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

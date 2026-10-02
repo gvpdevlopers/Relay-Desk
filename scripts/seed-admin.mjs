@@ -12,10 +12,7 @@ import { hashPassword } from "better-auth/crypto";
 
 import { pendingMigrations } from "./migration-plan.mjs";
 
-const projectRoot = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "..",
-);
+const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const dataDir = join(projectRoot, ".data");
 const databaseDir = join(dataDir, "relay-desk-pglite");
@@ -101,9 +98,7 @@ async function applyMigrations(pg) {
   const entries = await readdir(migrationsDir);
   const sqlFiles = entries.filter((name) => name.endsWith(".sql"));
 
-  const appliedRows = await pg.query(
-    "SELECT name FROM _migrations",
-  );
+  const appliedRows = await pg.query("SELECT name FROM _migrations");
 
   const applied = appliedRows.rows.map((row) => row.name);
 
@@ -114,10 +109,7 @@ async function applyMigrations(pg) {
 
     await pg.transaction(async (tx) => {
       await tx.exec(sql);
-      await tx.query(
-        "INSERT INTO _migrations (name) VALUES ($1)",
-        [name],
-      );
+      await tx.query("INSERT INTO _migrations (name) VALUES ($1)", [name]);
     });
 
     console.log(`[seed-admin] applied migration: ${name}`);
@@ -125,6 +117,10 @@ async function applyMigrations(pg) {
 }
 
 async function main() {
+  const testDefault = process.argv.includes("--test-default");
+  if (testDefault && (process.env.NODE_ENV === "production" || process.env.DATABASE_URL?.trim())) {
+    throw new Error("The default test admin is only available for the local PGlite database.");
+  }
   await mkdir(dataDir, { recursive: true });
 
   const pg = new PGlite(databaseDir);
@@ -133,24 +129,24 @@ async function main() {
     await pg.waitReady;
     await applyMigrations(pg);
 
-    const rl = readline.createInterface({
-      input,
-      output,
-    });
+    let name = "Test Admin";
+    let email = "test-admin@relaydesk.test";
+    let password = "RelayDesk@Test123";
 
-    const name = (
-      await rl.question("Admin name: ")
-    ).trim();
+    if (!testDefault) {
+      const rl = readline.createInterface({
+        input,
+        output,
+      });
 
-    const email = (
-      await rl.question("Admin email: ")
-    ).trim().toLowerCase();
+      name = (await rl.question("Admin name: ")).trim();
 
-    rl.close();
+      email = (await rl.question("Admin email: ")).trim().toLowerCase();
 
-    const password = await readPassword(
-      "Admin password: ",
-    );
+      rl.close();
+
+      password = await readPassword("Admin password: ");
+    }
 
     if (!name) {
       throw new Error("Admin name cannot be empty.");
@@ -165,9 +161,7 @@ async function main() {
     }
 
     if (password.length < 8) {
-      throw new Error(
-        "Password must be at least 8 characters.",
-      );
+      throw new Error("Password must be at least 8 characters.");
     }
 
     const existingUsers = await pg.query(
@@ -182,6 +176,12 @@ async function main() {
     );
 
     let userId;
+
+    // Re-running the test seed must not reset a password changed in the UI.
+    if (testDefault && existingUsers.rows.length > 0) {
+      console.log("[seed-admin] Test account already exists; leaving it unchanged.");
+      return;
+    }
 
     if (existingUsers.rows.length > 0) {
       userId = existingUsers.rows[0].id;
@@ -199,9 +199,7 @@ async function main() {
         [name, now(), userId],
       );
 
-      console.log(
-        `[seed-admin] existing user found: ${email}`,
-      );
+      console.log(`[seed-admin] existing user found: ${email}`);
     } else {
       userId = createId();
 
@@ -231,9 +229,7 @@ async function main() {
         [userId, name, email, now(), now()],
       );
 
-      console.log(
-        `[seed-admin] created new admin user: ${email}`,
-      );
+      console.log(`[seed-admin] created new admin user: ${email}`);
     }
 
     const passwordHash = await hashPassword(password);
@@ -254,16 +250,10 @@ async function main() {
            "password" = $1,
            "updatedAt" = $2
          WHERE "id" = $3`,
-        [
-          passwordHash,
-          now(),
-          existingAccounts.rows[0].id,
-        ],
+        [passwordHash, now(), existingAccounts.rows[0].id],
       );
 
-      console.log(
-        "[seed-admin] credential password updated.",
-      );
+      console.log("[seed-admin] credential password updated.");
     } else {
       await pg.query(
         `INSERT INTO "account" (
@@ -296,19 +286,10 @@ async function main() {
           $5,
           $6
         )`,
-        [
-          createId(),
-          userId,
-          userId,
-          passwordHash,
-          now(),
-          now(),
-        ],
+        [createId(), userId, userId, passwordHash, now(), now()],
       );
 
-      console.log(
-        "[seed-admin] credential account created.",
-      );
+      console.log("[seed-admin] credential account created.");
     }
 
     console.log("");
